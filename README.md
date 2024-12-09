@@ -45,6 +45,46 @@ func main() {
 }
 ```
 
+```html
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Home</title>
+    <link rel="stylesheet" href="{{ url_for "static/style.css" }}">
+</head>
+<body>
+    <h1>Welcome to Goblet</h1>
+    <p>This is a demo for Goblet, my first Go framework.</p>
+    <a href="{{ url_for "about" }}">About</a>
+</body>
+</html>
+
+```
+
+```html
+<!-- about.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>About</title>
+    <link rel="stylesheet" href="{{ url_for "static/style.css" }}">
+</head>
+<body>
+    <h1>About Page</h1>
+    <p>This page is rendered using Goblet templates.</p>
+    <a href="{{ url_for "index" }}">Go Back</a>
+</body>
+</html>
+
+```
+
+## Documentation
+
+The documentation can be found [here](https://godoc.org/github.com/aquiffoo/goblet).
+
 ## License
 
 This project is licensed under the [CC BY-NC 4.0](./LICENSE) license.
