@@ -26,7 +26,6 @@ func loadTemplates(path string) *template.Template {
 	return template.Must(template.New("").Funcs(funcMap).ParseGlob(p))
 }
 
-
 func New(hotReload bool) *Goblet {
 	g := &Goblet{
 		routes: make(map[string]http.HandlerFunc),
@@ -75,7 +74,7 @@ func (g *Goblet) watch() {
 		fmt.Println("ERR: Failed to create watcher:", err)
 		return
 	}
-	defer watcher.Close()
+	defer watcher.Close() 
 
 	watchPaths := []string{"."}
 	excludedDirs := map[string]bool{".git": true, "bin": true, "node_modules": true}
@@ -111,7 +110,7 @@ func (g *Goblet) watch() {
 
 	for {
 		select {
-		case event, ok := <-watcher.Events:
+		case event, ok := <- watcher.Events:
 			if !ok {
 				return
 			}
@@ -124,19 +123,19 @@ func (g *Goblet) watch() {
 					continue
 				}
 
-				fmt.Printf("🔄 Change detected in %s\n", event.Name)
+				fmt.Printf("Change detected in %s\n", event.Name)
 
-				restartTimer.Reset(1 * time.Second)
+				restartTimer.Reset(1 * time.Second)''
 			}
 
-		case err, ok := <-watcher.Errors:
+		case err, ok := <- watcher.Errors:
 			if !ok {
 				return
 			}
 			fmt.Println("ERR:  Watcher error:", err)
 
-		case <-restartTimer.C:
-			fmt.Println("🔁 Restarting server...")
+		case <- restartTimer.C:
+			fmt.Println("Restarting server...")
 
 			cmd := exec.Command("go", "run", "main.go")
 			cmd.Stdout = os.Stdout
