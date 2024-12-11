@@ -125,7 +125,7 @@ func (g *Goblet) watch() {
 
 				fmt.Printf("Change detected in %s\n", event.Name)
 
-				restartTimer.Reset(1 * time.Second)''
+				restartTimer.Reset(1 * time.Second)
 			}
 
 		case err, ok := <- watcher.Errors:
