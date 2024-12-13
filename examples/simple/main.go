@@ -12,6 +12,8 @@ func main() {
 	app.Handle("/", func(w http.ResponseWriter, r *http.Request) {
 		data := map[string]interface{}{
 			"title": "Home",
+			"lang": "en",
+			"charset": "utf-8",
 		}
 
 		app.Render(w, "index.html", data)
@@ -19,7 +21,9 @@ func main() {
 
 	app.Handle("/about", func(w http.ResponseWriter, r *http.Request) {
 		data := map[string]interface{}{
-			"title": "About",
+			"title": "Home",
+			"lang": "en",
+			"charset": "utf-8",
 		}
 
 		app.Render(w, "about.html", data)

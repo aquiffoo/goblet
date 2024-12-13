@@ -48,10 +48,10 @@ func main() {
 ```html
 <!-- index.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ .lang }}">
 <head>
-    <meta charset="UTF-8">
-    <title>Home</title>
+    <meta charset="{{ .charset }}">
+    <title>{{ .title }}</title>
     <link rel="stylesheet" href="{{ url_for "static/style.css" }}">
 </head>
 <body>
@@ -66,10 +66,10 @@ func main() {
 ```html
 <!-- about.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ .lang }}">
 <head>
-    <meta charset="UTF-8">
-    <title>About</title>
+    <meta charset="{{ .charset }}">
+    <title>{{ .title }}</title>
     <link rel="stylesheet" href="{{ url_for "static/style.css" }}">
 </head>
 <body>
