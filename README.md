@@ -1,6 +1,6 @@
-# goblet
+# <img src="assets/logo.png" width="200" height="200">
 
-A simple and lightweight web framework for Go, that works like Flask, but in an ambient that is much faster than Python.
+A simple and lightweight server-side web framework for Go, that works like Flask, but in an ambient that is much faster than Python. You can send data through the `data` interface and use HTML files as templates.
 
 ## Installation
 
