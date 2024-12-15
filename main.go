@@ -58,7 +58,14 @@ func (g *Goblet) Serve(port string) error {
 }
 
 func (g *Goblet) Render(w http.ResponseWriter, name string, data interface{}) error {
-	err := g.templates.ExecuteTemplate(w, name, data)
+	procTpl, err := Extends(g.templates, name, data)
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return err
+	}
+
+	err = procTpl.Execute(w, data)
 
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -74,7 +81,7 @@ func (g *Goblet) watch() {
 		fmt.Println("ERR: Failed to create watcher:", err)
 		return
 	}
-	defer watcher.Close() 
+	defer watcher.Close()
 
 	watchPaths := []string{"."}
 	excludedDirs := map[string]bool{".git": true, "bin": true, "node_modules": true}
@@ -125,7 +132,7 @@ func (g *Goblet) watch() {
 
 				fmt.Printf("Change detected in %s\n", event.Name)
 
-				restartTimer.Reset(1 * time.Second)
+				restartTimer.Reset(10 * time.Millisecond)
 			}
 
 		case err, ok := <- watcher.Errors:

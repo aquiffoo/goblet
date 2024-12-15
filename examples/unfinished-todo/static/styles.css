@@ -1,0 +1,34 @@
+body {
+    font-family: sans-serif;
+}
+
+nav {
+    background-color: #eee;
+    padding: 10px;
+}
+
+nav a {
+    margin-right: 15px;
+}
+
+main {
+    padding: 20px;
+}
+
+form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+form input[type="text"],
+form input[type="password"] {
+    width: 200px;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+#todo-list li {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+}

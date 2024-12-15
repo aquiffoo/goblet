@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="{{ .lang }}">
+<head>
+    <meta charset="{{ .charset }}">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ block "title" . }}{{ .title }}{{ end }}</title>
+    <link rel="stylesheet" href="{{ url_for "static/styles.css" }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="{{ url_for "" }}">Home</a>
+            <a href="{{ url_for "login" }}">Login</a>
+            <a href="{{ url_for "register" }}">Register</a>
+        </nav>
+    </header>
+    <main>
+        {{ block "main" . }}
+        {{ end }}
+    </main>
+    <footer align="center">
+        <p>Made with <a href="https://github.com/aquiffoo/goblet">Goblet</a></p>
+    </footer>
+    <script src="{{ url_for "static/script.js" }}"></script>
+</body>
+</html>
