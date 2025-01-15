@@ -1,6 +1,6 @@
 {{ extends "base.html" }}
 <title>{{ .title }}</title>
-{{ block "main" }}
+{{ block "main" . }}
     <h1>Welcome to Goblet Todo</h1>
     {{ if .success }}
         <p>You are logged in as {{ .username }}.</p>

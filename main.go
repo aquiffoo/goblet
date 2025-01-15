@@ -1,26 +1,36 @@
 package goblet
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
-	"path/filepath"
-	"fmt"
 	"os"
-	"time"
 	"os/exec"
+	"path/filepath"
+	"time"
+
 	"github.com/fsnotify/fsnotify"
 )
 
 type Goblet struct {
-	routes		map[string]http.HandlerFunc
-	templates	*template.Template
-	static		string
-	hotReload	bool
+	routes    map[string]http.HandlerFunc
+	templates *template.Template
+	static    string
+	hotReload bool
 }
 
 func loadTemplates(path string) *template.Template {
 	funcMap := template.FuncMap{
 		"url_for": UrlFor,
+		"block":    func(string, interface{}) string { return "" },
+		"define":   func(string) string { return "" },
+		"if":       func(interface{}) string { return "" },
+		"else":     func() string { return "" },
+		"end":      func() string { return "" },
+		"range":    func(interface{}) string { return "" },
+		"with":     func(interface{}) string { return "" },
+		"template": func(string, ...interface{}) string { return "" },
+		"extends":  func(string, ...interface{}) string { return "" },
 	}
 	p := filepath.Join(path, "*.html")
 	return template.Must(template.New("").Funcs(funcMap).ParseGlob(p))
@@ -28,9 +38,9 @@ func loadTemplates(path string) *template.Template {
 
 func New(hotReload bool) *Goblet {
 	g := &Goblet{
-		routes: make(map[string]http.HandlerFunc),
+		routes:    make(map[string]http.HandlerFunc),
 		templates: loadTemplates("templates"),
-		static: "./static",
+		static:    "./static",
 		hotReload: hotReload,
 	}
 
@@ -58,21 +68,21 @@ func (g *Goblet) Serve(port string) error {
 }
 
 func (g *Goblet) Render(w http.ResponseWriter, name string, data interface{}) error {
-	procTpl, err := Extends(g.templates, name, data)
+    w.Header().Set("Content-Type", "text/html")
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return err
-	}
+    finalTmpl, err := Extends(g.templates, name, data)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return err
+    }
 
-	err = procTpl.Execute(w, data)
+    err = finalTmpl.ExecuteTemplate(w, name, data)
+    if err != nil {
+        http.Error(w, err.Error(), http.StatusInternalServerError)
+        return err
+    }
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return err
-	}
-
-	return nil
+    return nil
 }
 
 func (g *Goblet) watch() {
@@ -117,7 +127,7 @@ func (g *Goblet) watch() {
 
 	for {
 		select {
-		case event, ok := <- watcher.Events:
+		case event, ok := <-watcher.Events:
 			if !ok {
 				return
 			}
@@ -135,13 +145,13 @@ func (g *Goblet) watch() {
 				restartTimer.Reset(10 * time.Millisecond)
 			}
 
-		case err, ok := <- watcher.Errors:
+		case err, ok := <-watcher.Errors:
 			if !ok {
 				return
 			}
 			fmt.Println("ERR:  Watcher error:", err)
 
-		case <- restartTimer.C:
+		case <-restartTimer.C:
 			fmt.Println("Restarting server...")
 
 			cmd := exec.Command("go", "run", "main.go")

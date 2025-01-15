@@ -14,50 +14,56 @@ func UrlFor(endpoint string) string {
 	return fmt.Sprintf("/%s", endpoint)
 }
 
-// regex searches for: {{ extends "yada yada yada" }}
 var extendsRegex = regexp.MustCompile(`\{\{\s*extends\s*\"(.*?)\"\}\}`)
 
-func parseTemplate(baseTemplate, templateName string, templates map[string]string) (*template.Template, error) {
+func parseTemplate(baseTemplate *template.Template, templateName string, templates map[string]string) (*template.Template, error) {
 	funcMap := template.FuncMap{
 		"url_for": UrlFor,
+		"extends": func(string, ...interface{}) string { return "" },
+		"block":   func(string, interface{}) string { return "" },
+		"define":  func(string) string { return "" },
+		"if":      func(interface{}) string { return "" },
+		"else":    func() string { return "" },
+		"end":     func() string { return "" },
+		"range":   func(interface{}) string { return "" },
+		"with":    func(interface{}) string { return "" },
+		"template": func(string, ...interface{}) string { return "" },
 	}
-	tmpl := template.New(templateName).Funcs(funcMap)
 
-	var processTemplate func(name string) (*template.Template, error)
-	processTemplate = func(name string) (*template.Template, error) {
-		content, ok := templates[name]
+	tmpl, err := baseTemplate.Clone()
+	if err != nil {
+		return nil, fmt.Errorf("error cloning base template: %v", err)
+	}
+	tmpl = tmpl.Funcs(funcMap)
+
+	content, ok := templates[templateName]
+	if !ok {
+		return nil, fmt.Errorf("template %s not found", templateName)
+	}
+
+	match := extendsRegex.FindStringSubmatch(content)
+	if match != nil {
+		parentName := match[1]
+		parentContent, ok := templates[parentName]
 		if !ok {
-			return nil, fmt.Errorf("template %s not found", name)
+			return nil, fmt.Errorf("parent template %s not found", parentName)
 		}
 
-		match := extendsRegex.FindStringSubmatch(content)
-		if match != nil {
-			parentName := match[1]
-			parentContent, ok := templates[parentName]
-			if !ok {
-				return nil, fmt.Errorf("parent template %s not found", parentName)
-			}
+		content = extendsRegex.ReplaceAllString(content, "")
+		parentContent = replaceBlocks(parentContent, content)
 
-			content = extendsRegex.ReplaceAllString(content, "")
-			parentContent = replaceBlocks(parentContent, content)
-
-			var err error
-			tmpl, err = tmpl.Parse(parentContent)
-			if err != nil {
-				return nil, fmt.Errorf("error parsing parent template %s: %v", parentName, err)
-			}
-		} else {
-			var err error
-			tmpl, err = tmpl.Parse(content)
-			if err != nil {
-				return nil, fmt.Errorf("error parsing template %s: %v", name, err)
-			}
+		_, err = tmpl.Parse(parentContent)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing parent template %s: %v", parentName, err)
 		}
-
-		return tmpl, nil
+	} else {
+		_, err = tmpl.Parse(content)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing template %s: %v", templateName, err)
+		}
 	}
 
-	return processTemplate(templateName)
+	return tmpl, nil
 }
 
 func replaceBlocks(parentContent, childContent string) string {
@@ -71,7 +77,7 @@ func replaceBlocks(parentContent, childContent string) string {
 }
 
 func extractBlocks(content string) map[string]string {
-	re := regexp.MustCompile(`\{\{\s*block\s+\"(\w+)\"\s*\}\}(.*?)\{\{\s*end\s*\}\}`)
+	re := regexp.MustCompile(`\{\{\s*block\s+\"(\w+)\"\s*\.\s*\}\}(.*?)\{\{\s*end\s*\}\}`)
 	matches := re.FindAllStringSubmatch(content, -1)
 
 	blocks := make(map[string]string)
@@ -95,7 +101,7 @@ func Extends(tpl *template.Template, name string, data interface{}) (*template.T
 		return nil, err
 	}
 
-	finalTmpl, err := parseTemplate("base.html", name, templates)
+	finalTmpl, err := parseTemplate(tpl, name, templates)
 	if err != nil {
 		return nil, err
 	}

@@ -175,6 +175,17 @@ func main() {
 	})
 
 	app.Handle("/api/login", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		err := r.ParseForm()
+		if err != nil {
+			http.Error(w, "Error parsing form data", http.StatusBadRequest)
+			return
+		}
+
 		username := r.FormValue("username")
 		password := r.FormValue("password")
 
@@ -204,6 +215,17 @@ func main() {
 	})
 
 	app.Handle("/api/register", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			return
+		}
+
+		err := r.ParseForm()
+		if err != nil {
+			http.Error(w, "Error parsing form data", http.StatusBadRequest)
+			return
+		}
+
 		username := r.FormValue("username")
 		password := r.FormValue("password")
 
